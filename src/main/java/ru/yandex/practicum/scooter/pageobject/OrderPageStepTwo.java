@@ -18,7 +18,11 @@ public class OrderPageStepTwo {
     private final By orderButton =
             By.xpath("//button[text()='Заказать' and contains(@class,'Button_Middle')]");
     private final By yesButtonInModal = By.xpath("//button[text()='Да']");
-    private final By orderModal = By.xpath("//div[contains(@class,'Order_Modal')]");
+    private final By orderModal =
+            By.xpath("//div[contains(@class,'Order_Modal')]");
+    private final By orderModalHeader = By.xpath(
+            "//div[contains(@class,'Order_Modal')]//div[contains(@class,'Order_ModalHeader')]"
+    );
 
     public OrderPageStepTwo(WebDriver driver) {
         this.driver = driver;
@@ -31,8 +35,8 @@ public class OrderPageStepTwo {
 
     public void setRentalPeriod(String periodText) {
         driver.findElement(rentalPeriodDropdown).click();
-        driver.findElement(By.xpath(
-                "//div[@class='Dropdown-option' and text()='" + periodText + "']")
+        driver.findElement(
+                By.xpath("//div[@class='Dropdown-option' and text()='" + periodText + "']")
         ).click();
     }
 
@@ -53,15 +57,15 @@ public class OrderPageStepTwo {
         driver.findElement(yesButtonInModal).click();
     }
 
-    // Проверка, что модальное окно заказа появилось
+    // Проверка появления модального окна с заголовком "Заказ оформлен"
     public boolean isOrderCreated() {
         new WebDriverWait(driver, 5)
                 .until(ExpectedConditions.visibilityOfElementLocated(orderModal));
-        return driver.findElement(orderModal).isDisplayed();
+        String headerText = driver.findElement(orderModalHeader).getText();
+        return "Заказ оформлен".equals(headerText);
     }
 
     // Методы для проверки выбранного цвета
-
     public boolean isBlackSelected() {
         return driver.findElement(colorBlackCheckbox).isSelected();
     }
@@ -70,4 +74,3 @@ public class OrderPageStepTwo {
         return driver.findElement(colorGreyCheckbox).isSelected();
     }
 }
-

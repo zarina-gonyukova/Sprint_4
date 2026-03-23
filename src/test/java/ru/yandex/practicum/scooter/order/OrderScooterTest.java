@@ -42,14 +42,17 @@ public class OrderScooterTest extends TestBase {
 
     @Parameterized.Parameters(name = "{index}: {0} {1}, кнопка={9}, цвет={7}")
     public static Object[][] getData() {
-        // Два набора данных + две точки входа (кнопка сверху и снизу)
         return new Object[][]{
-                {"Иван", "Иванов", "ул. Тестовая, 1", "Черкизовская",
-                        "+79991234567", "20.03.2026", "сутки",
-                        "black", "Позвонить за 30 минут", "header"},
-                {"Пётр", "Петров", "пр. Автотестов, 2", "Сокол",
-                        "+79997654321", "21.03.2026", "двое суток",
-                        "grey", "Не звонить", "bottom"},
+                {
+                        "Иван", "Иванов", "ул. Тестовая, 1", "Черкизовская",
+                        "+79991234567", "20.04.2026", "сутки",
+                        "black", "Позвонить за 30 минут", "header"
+                },
+                {
+                        "Пётр", "Петров", "пр. Автотестов, 2", "Сокол",
+                        "+79997654321", "21.04.2026", "двое суток",
+                        "grey", "Не звонить", "bottom"
+                },
         };
     }
 
@@ -57,18 +60,17 @@ public class OrderScooterTest extends TestBase {
     public void orderScooterPositiveFlow() {
         HomePage homePage = new HomePage(driver);
 
-        // Параметризованная точка входа: верхняя или нижняя кнопка "Заказать"
+        // Выбор точки входа: верхняя или нижняя кнопка "Заказать"
         if ("header".equals(orderButtonPosition)) {
             homePage.clickOrderButtonHeader();
         } else {
             homePage.clickOrderButtonBottom();
         }
 
-        // Шаг 1: Заполнение данных клиента
+        // Шаг 1: заполнение данных клиента
         OrderPageStepOne stepOne = new OrderPageStepOne(driver);
         stepOne.fillClientInfo(name, surname, address, metro, phone);
 
-        // Автоматизированная проверка, что данные действительно попали в поля
         Assert.assertEquals("Имя в поле не совпадает с ожидаемым",
                 name, stepOne.getNameValue());
         Assert.assertEquals("Фамилия в поле не совпадает с ожидаемой",
@@ -82,14 +84,13 @@ public class OrderScooterTest extends TestBase {
 
         stepOne.clickNext();
 
-        // Шаг 2: Параметризованные данные аренды и цвет
+        // Шаг 2: параметры аренды и цвет
         OrderPageStepTwo stepTwo = new OrderPageStepTwo(driver);
         stepTwo.setDate(date);
         stepTwo.setRentalPeriod(period);
         stepTwo.setColor(color);
         stepTwo.setComment(comment);
 
-        // Проверяем, что выбран нужный цвет самоката
         if ("black".equalsIgnoreCase(color)) {
             Assert.assertTrue("Чёрный цвет должен быть выбран", stepTwo.isBlackSelected());
             Assert.assertFalse("Серый цвет не должен быть выбран", stepTwo.isGreySelected());
@@ -98,9 +99,11 @@ public class OrderScooterTest extends TestBase {
             Assert.assertFalse("Чёрный цвет не должен быть выбран", stepTwo.isBlackSelected());
         }
 
-        // Отправляем заказ и проверяем модальное окно
+        // Отправляем заказ и ожидаем корректное модальное окно
         stepTwo.submitOrder();
-        Assert.assertTrue("Модальное окно заказа не появилось", stepTwo.isOrderCreated());
+        Assert.assertTrue(
+                "Заказ не оформлен: модальное окно не появилось или содержит неверный заголовок",
+                stepTwo.isOrderCreated()
+        );
     }
 }
-
